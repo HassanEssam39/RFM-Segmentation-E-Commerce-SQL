@@ -6,18 +6,17 @@ GROUP BY customerid),
 
 fm_avg (customerid, r_score, fm_score) AS (
 SELECT customerid, NTILE(5) OVER(ORDER BY recency DESC) AS r_score,
-(frequency+ NTILE(5) OVER(ORDER BY recency DESC)) /2 AS fm_score
+(frequency + monetary) /2 AS fm_score
 FROM cust_category
-GROUP BY customerid, recency, frequency
 ),
 seg_tab (customerid, rfm_score) AS (
-SELECT customerid, CONCAT(r_score, fm_score) AS rfm_score
+SELECT customerid, /*its required to take the average of fm in the project requirments*/ CONCAT(r_score, fm_score) AS rfm_score
 	FROM fm_avg
 )
 
 SELECT cc.customerid, recency, frequency, monetary, r_score, fm_score,
-CASE WHEN rfm_score IN ('55', '54', '45') THEN 'Champions'
-     WHEN rfm_score IN ('52', '42', '33', '43') THEN 'Potential Loyalists'
+    CASE WHEN rfm_score IN ('55', '54', '45') THEN 'Champions'	
+	 WHEN rfm_score IN ('52', '42', '33', '43') THEN 'Potential Loyalists'
 	 WHEN rfm_score IN ('53', '44', '35', '34') THEN 'Loyal Customers'
 	 WHEN rfm_score IN ('51') THEN 'Recent Customers'
 	 WHEN rfm_score IN ('41', '31') THEN 'Promising'
